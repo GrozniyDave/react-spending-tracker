@@ -180,8 +180,8 @@ const NewTransactionForm = () => {
       </Grid>
       <Button
         className={classes.button}
-        variant="outlined"
-        color="primary"
+        variant="contained"
+        color="secondary"
         fullWidth
         onClick={createTransaction}
       >
