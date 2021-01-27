@@ -1,15 +1,25 @@
 import React, { useState, useContext, useEffect } from 'react';
-// prettier-ignore
-import {TextField,Typography,Grid,Button,FormControl,InputLabel,Select,MenuItem,} from '@material-ui/core';
-import { ExpenseTrackerContext } from '../../../context/context';
+import {
+  TextField,
+  Typography,
+  Grid,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
+
 import { useSpeechContext } from '@speechly/react-client';
+import Snackbar from '../../Snackbar/Snackbar';
 import formatDate from '../../../utils/formatDate';
-import useStyles from './styles';
+import { ExpenseTrackerContext } from '../../../context/context';
 import {
   incomeCategories,
   expenseCategories,
 } from '../../../constants/categories';
+import useStyles from './styles';
 
 const initialState = {
   amount: '',
@@ -17,24 +27,32 @@ const initialState = {
   type: 'Income',
   date: formatDate(new Date()),
 };
-// console.log(initialState.date, 'test');
 
-const Form = () => {
-  const [formData, setFormData] = useState(initialState);
+const NewTransactionForm = () => {
   const classes = useStyles();
   const { addTransaction } = useContext(ExpenseTrackerContext);
-
+  const [formData, setFormData] = useState(initialState);
   const { segment } = useSpeechContext();
+  const [open, setOpen] = React.useState(false);
 
   const createTransaction = () => {
     if (Number.isNaN(Number(formData.amount)) || !formData.date.includes('-'))
       return;
-    const transaction = {
+
+    if (incomeCategories.map((iC) => iC.type).includes(formData.category)) {
+      setFormData({ ...formData, type: 'Income' });
+    } else if (
+      expenseCategories.map((iC) => iC.type).includes(formData.category)
+    ) {
+      setFormData({ ...formData, type: 'Expense' });
+    }
+
+    setOpen(true);
+    addTransaction({
       ...formData,
       amount: Number(formData.amount),
       id: uuidv4(),
-    };
-    addTransaction(transaction);
+    });
     setFormData(initialState);
   };
 
@@ -55,13 +73,15 @@ const Form = () => {
       ) {
         return setFormData(initialState);
       }
-      segment.entities.forEach((e) => {
-        const category = `${e.value.charAt(0)}${e.value
+
+      segment.entities.forEach((s) => {
+        const category = `${s.value.charAt(0)}${s.value
           .slice(1)
           .toLowerCase()}`;
-        switch (e.type) {
+
+        switch (s.type) {
           case 'amount':
-            setFormData({ ...formData, amount: e.value });
+            setFormData({ ...formData, amount: s.value });
             break;
           case 'category':
             if (incomeCategories.map((iC) => iC.type).includes(category)) {
@@ -73,9 +93,8 @@ const Form = () => {
             }
             break;
           case 'date':
-            setFormData({ ...formData, date: e.value });
+            setFormData({ ...formData, date: s.value });
             break;
-
           default:
             break;
         }
@@ -96,12 +115,17 @@ const Form = () => {
   const selectedCategories =
     formData.type === 'Income' ? incomeCategories : expenseCategories;
 
-  // console.log(formData);
   return (
     <Grid container spacing={2}>
+      <Snackbar open={open} setOpen={setOpen} />
       <Grid item xs={12}>
         <Typography align="center" variant="subtitle2" gutterBottom>
-          {segment && segment.map((w) => w.value).join(' ')}
+          {segment ? (
+            <div className="segment">
+              {segment.words.map((w) => w.value).join(' ')}
+            </div>
+          ) : null}
+          {/* {isSpeaking ? <BigTranscript /> : 'Start adding transactions'}  */}
         </Typography>
       </Grid>
       <Grid item xs={6}>
@@ -133,33 +157,26 @@ const Form = () => {
           </Select>
         </FormControl>
       </Grid>
+
       <Grid item xs={6}>
         <TextField
           type="number"
           label="Amount"
-          fullWidth
           value={formData.amount}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              amount: e.target.value,
-            })
-          }
-        ></TextField>
+          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+          fullWidth
+        />
       </Grid>
       <Grid item xs={6}>
         <TextField
-          type="date"
-          label="Date"
           fullWidth
+          label="Date"
+          type="date"
           value={formData.date}
           onChange={(e) =>
-            setFormData({
-              ...formData,
-              date: formatDate(e.target.value),
-            })
+            setFormData({ ...formData, date: formatDate(e.target.value) })
           }
-        ></TextField>
+        />
       </Grid>
       <Button
         className={classes.button}
@@ -174,4 +191,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default NewTransactionForm;
