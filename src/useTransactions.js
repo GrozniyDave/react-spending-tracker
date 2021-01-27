@@ -12,7 +12,7 @@ export const useTransactions = (title) => {
     0
   );
   const categories = title === 'Income' ? incomeCategories : expenseCategories;
-  console.log({ transactionsPerType, total, categories });
+  // console.log({ transactionsPerType, total, categories });
 
   transactionsPerType.forEach((t) => {
     const category = categories.find((c) => c.type === t.category);

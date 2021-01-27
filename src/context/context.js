@@ -1,7 +1,24 @@
 import React, { useReducer, createContext } from 'react';
 import contextReducer from './contextReducer';
 
-const initialState = [];
+const initialState = JSON.parse(localStorage.getItem('transactions')) || [
+  [
+    {
+      amount: 21,
+      category: 'Extra income',
+      type: 'Income',
+      date: '2021-01-27',
+      id: '441c1c2f-f219-4030-a67e-c129df7cb6a0',
+    },
+    {
+      amount: 50,
+      category: 'Savings',
+      type: 'Income',
+      date: '12-18-2020',
+      id: '1',
+    },
+  ],
+];
 export const ExpenseTrackerContext = createContext(initialState);
 export const Provider = ({ children }) => {
   const [transactions, dispatch] = useReducer(contextReducer, initialState);
@@ -19,7 +36,6 @@ export const Provider = ({ children }) => {
       payload: transaction,
     });
 
-  console.log(transactions);
   return (
     <ExpenseTrackerContext.Provider
       value={{
