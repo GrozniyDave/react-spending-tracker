@@ -4,9 +4,10 @@
 #Setup:
 
 - run `npm i && npm start`
-  #Speechly config:
 
-category_income = [
+##Speechly config:
+
+`category_income = [
 Business
 Investments
 Extra income
@@ -42,3 +43,4 @@ Other
 *add_expense $SPEECHLY.NUMBER(amount) {[dollar|dollars]} expense {in} ![{category} | [$category_expense|$category_income](category)] {[for|in]} $SPEECHLY.DATE(date)
 *add_income {Add} {[{an} income|{a} balance]} ![{[for|of]} $SPEECHLY.NUMBER(amount) {dollars} | {in} | {category} | [$category_expense|$category_income](category) | {[for|in]} $SPEECHLY.DATE(date)]
 *add_income $SPEECHLY.NUMBER(amount) {[dollar|dollars]} [income|balance] {in} ![{category} | [$category_expense|$category_income](category)] {[for|in]} $SPEECHLY.DATE(date)
+`
